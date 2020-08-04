@@ -2,11 +2,11 @@ prefix = $(DESTDIR)/usr
 bindir = ${prefix}/bin
 mandir = ${prefix}/share/man
 
-CC = gcc
+CC ?= gcc
 CFLAGS += -Wall -std=c99 -pedantic -O2
 
-INSTALL = /usr/bin/install -c
-STRIP = /usr/bin/strip -s
+INSTALL = install -c
+STRIP = strip -s
 
 all: htpdate
 
