@@ -376,7 +376,9 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 			timeofday.tv_usec - when;
 
 		/* Look for the line that contains Date: */
-		if ( (pdate = strstr(buffer, "Date: ")) != NULL && strlen( pdate ) >= 35 ) {
+		if ( ((pdate = strstr(buffer, "Date: ")) != NULL ||
+			(pdate = strstr(buffer, "date: ")) != NULL) &&
+				strlen( pdate ) >= 35 ) {
 			strncpy(remote_time, pdate + 11, 24);
 
 			memset(&tm, 0, sizeof(struct tm));
