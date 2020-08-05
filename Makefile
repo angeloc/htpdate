@@ -5,12 +5,17 @@ mandir = ${prefix}/share/man
 CC ?= gcc
 CFLAGS += -Wall -std=c99 -pedantic -O2
 
+ifdef ENABLE_HTTPS
+CFLAGS += -DENABLE_HTTPS
+LDFLAGS += -lssl -lcrypto
+endif
+
 INSTALL = install -c
 
 all: htpdate
 
 htpdate: htpdate.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) -o htpdate htpdate.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o htpdate htpdate.c $(LDFLAGS)
 
 install: all
 	mkdir -p $(bindir)

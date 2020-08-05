@@ -50,7 +50,7 @@ In general, if more web servers are specified, the accuracy will increase.
 See manpage for more details.
 
 
-To do
+New features
 -----
 
-- I'm open for suggestions :)
+Version v1.2.4 introduced https support.

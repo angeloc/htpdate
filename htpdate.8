@@ -76,11 +76,15 @@ Web server hostname or ip-address. Upto 16 hosts may be specified, but in
 general 3 to 5 hosts should be enough for a redundant and accurate setup.
 .TP 
 .I port
-Portnumber (default 80 and 8080 for proxy server)
+Portnumber (default 80 and 8080 for proxy server), accept prefix like http:// or https://
 .SH "EXAMPLES"
 Request time from web server (don't update local clock):
 .br
 \&       htpdate \-q www.example.com
+.P
+Request time from https web server:
+.br
+\&       htpdate \-q https://www.example.com
 .P
 Verbose output (don't update local clock):
 .br

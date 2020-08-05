@@ -1,6 +1,10 @@
 /*
 	htpdate v1.2.3
 
+	Author: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+	https://github.com/angeloc/htpdate
+
+	Original author:
 	Eddy Vervest <eddy@vervest.org>
 	http://www.vervest.org/htp
 
@@ -51,6 +55,10 @@
 #include <limits.h>
 #include <pwd.h>
 #include <grp.h>
+
+#ifdef ENABLE_HTTPS
+#include <openssl/ssl.h>
+#endif
 
 #define VERSION 			"1.2.3"
 #define	MAX_HTTP_HOSTS			15			/* 16 web servers */
@@ -129,6 +137,18 @@ static void splithostport( char **host, char **port ) {
 	lc = strchr( *host, ':' );
 	rc = strrchr( *host, ':' );
 
+	if (strstr(*host, "https://") == *host){
+		*host = *host + strlen("https://");
+		*port = "443\0";
+		return;
+	}
+
+	if (strstr(*host, "http://") == *host){
+		*host = *host + strlen("http://");
+		*port = "80\0";
+		return;
+	}
+
 	/* A (litteral) IPv6 address with portnumber */
 	if ( rb < rc && lb != NULL && rb != NULL ) {
 		rb[0] = '\0';
@@ -183,6 +203,53 @@ static void swgid( int id ) {
 	}
 }
 
+static int getHTTP (int server_s, char *buffer) {
+	int ret;
+
+	/* Send HEAD request */
+	ret = send(server_s, buffer, strlen(buffer), 0);
+
+	if (ret < 0) {
+		printlog( 1, "Error sending" );
+		return 0;
+	}
+
+	/* Receive data from the web server
+	   The return code from recv() is the number of bytes received
+	*/
+	ret = recv(server_s, buffer, BUFFERSIZE - 1, 0) != -1;
+
+	close( server_s );
+
+	return ret;
+}
+
+#ifdef ENABLE_HTTPS
+static int getHTTPS (int server_s, char *buffer) {
+	int ret;
+	SSL_CTX *ssl_ctx = SSL_CTX_new (SSLv23_client_method ());
+
+	SSL *conn = SSL_new(ssl_ctx);
+	SSL_set_fd(conn, server_s);
+
+	int err = SSL_connect(conn);
+	if (err != 1)
+		return 0;
+
+	ret = SSL_write(conn, buffer, BUFFERSIZE -1);
+
+	if (ret <= 0) {
+		printlog( 1, "Error sending" );
+		return 0;
+	}
+
+	ret = SSL_read(conn, buffer, BUFFERSIZE - 1) > 0;
+
+	SSL_shutdown(conn);
+
+	return ret;
+}
+#endif
 
 static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, char *httpversion, int ipversion, int when ) {
 	int			server_s;
@@ -198,6 +265,12 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 	char			url[URLSIZE] = { '\0' };
 	char			*pdate = NULL;
 
+#ifdef ENABLE_HTTPS
+	int			port_is_https = 0;
+
+	if (strncmp (port, "443", 3) == 0)
+		port_is_https = 1;
+#endif
 
 	/* Connect to web server via proxy server or directly */
 	memset( &hints, 0, sizeof(hints) );
@@ -276,15 +349,14 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 	}
 	nanosleep( &sleepspec, &remainder );
 
-	/* Send HEAD request */
-	if ( send(server_s, buffer, strlen(buffer), 0) < 0 )
-		printlog( 1, "Error sending" );
+#ifdef ENABLE_HTTPS
+	if (port_is_https)
+		rc = getHTTPS(server_s, buffer);
+	else
+#endif
+		rc = getHTTP(server_s, buffer);
 
-	/* Receive data from the web server
-	   The return code from recv() is the number of bytes received
-	*/
-	if ( recv(server_s, buffer, BUFFERSIZE - 1, 0) != -1 ) {
-
+	if ( rc ) {
 		/* Assuming that network delay (server->htpdate) is neglectable,
 		   the received web server time "should" match the local time.
 
@@ -324,8 +396,6 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 		}
 
 	}						/* bytes received */
-
-	close( server_s );
 
 	/* Return the time delta between web server time (timevalue)
 	   and system time (timeofday)
@@ -683,6 +753,11 @@ int main( int argc, char *argv[] ) {
 		precision = 0;
 		nap = 500000;
 	}
+
+#ifdef ENABLE_HTTPS
+	SSL_load_error_strings ();
+	SSL_library_init ();
+#endif
 
 	/* Infinite poll cycle loop in daemonize mode */
 	do {
