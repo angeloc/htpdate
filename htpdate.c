@@ -52,20 +52,20 @@
 #include <pwd.h>
 #include <grp.h>
 
-#define VERSION 				"1.2.2"
-#define	MAX_HTTP_HOSTS			15				/* 16 web servers */
+#define VERSION 			"1.2.2"
+#define	MAX_HTTP_HOSTS			15			/* 16 web servers */
 #define	DEFAULT_HTTP_PORT		"80"
 #define	DEFAULT_PROXY_PORT		"8080"
 #define	DEFAULT_IP_VERSION		PF_UNSPEC		/* IPv6 and IPv4 */
-#define	DEFAULT_HTTP_VERSION	"1"				/* HTTP/1.1 */
+#define	DEFAULT_HTTP_VERSION		"1"			/* HTTP/1.1 */
 #define	DEFAULT_TIME_LIMIT		31536000		/* 1 year */
 #define	DEFAULT_MIN_SLEEP		1800			/* 30 minutes */
 #define	DEFAULT_MAX_SLEEP		115200			/* 32 hours */
-#define	MAX_DRIFT				32768000		/* 500 PPM */
-#define	MAX_ATTEMPT				2				/* Poll attempts */
+#define	MAX_DRIFT			32768000		/* 500 PPM */
+#define	MAX_ATTEMPT			2			/* Poll attempts */
 #define	DEFAULT_PID_FILE		"/var/run/htpdate.pid"
-#define	URLSIZE					128
-#define	BUFFERSIZE				1024
+#define	URLSIZE				128
+#define	BUFFERSIZE			1024
 
 #define sign(x) (x < 0 ? (-1) : 1)
 
@@ -78,30 +78,30 @@ static int		logmode = 0;
 /* Make mktime timezone agnostic, see manpage timegm */
 time_t gmtmktime (struct tm *tm)
 {
-    char *tz;
-    time_t result;
+	char *tz;
+	time_t result;
 
-    /* Temporarily set timezone to UTC for conversion */
-    tz = getenv("TZ");
-    if (tz) {
+	/* Temporarily set timezone to UTC for conversion */
+	tz = getenv("TZ");
+	if (tz) {
 		tz = strdup (tz);
 	}
-    setenv("TZ", "", 1);
-    tzset();
+	setenv("TZ", "", 1);
+	tzset();
 
-    result = mktime (tm);
+	result = mktime (tm);
 
-    /* Restore timezone */
-    if (tz) {
-      setenv("TZ", tz, 1);
-      free (tz);
-    }
-    else {
-      unsetenv("TZ");
-    }
-    tzset();
+	/* Restore timezone */
+	if (tz) {
+	  setenv("TZ", tz, 1);
+	  free (tz);
+	}
+	else {
+	  unsetenv("TZ");
+	}
+	tzset();
 
-    return result;
+	return result;
 }
 
 
@@ -132,12 +132,12 @@ static void splithostport( char **host, char **port ) {
 	/* A (litteral) IPv6 address with portnumber */
 	if ( rb < rc && lb != NULL && rb != NULL ) {
 		rb[0] = '\0';
-	    *port = rc + 1;
+		*port = rc + 1;
 		*host = lb + 1;
 		return;
 	}
 
-    /* A (litteral) IPv6 address without portnumber */
+	/* A (litteral) IPv6 address without portnumber */
 	if ( rb != NULL && lb != NULL ) {
 		rb[0] = '\0';
 		*host = lb + 1;
@@ -162,7 +162,7 @@ static void printlog( int is_error, char *format, ... ) {
 	(void) vsnprintf(buf, sizeof(buf), format, args);
 	va_end(args);
 
-    if ( logmode )
+	if ( logmode )
 		syslog(is_error?LOG_WARNING:LOG_INFO, "%s", buf);
 	else
 		fprintf(is_error?stderr:stdout, "%s\n", buf);
@@ -185,18 +185,18 @@ static void swgid( int id ) {
 
 
 static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, char *httpversion, int ipversion, int when ) {
-	int					server_s;
-	int					rc;
+	int			server_s;
+	int			rc;
 	struct addrinfo		hints, *res, *res0;
-	struct tm			tm;
+	struct tm		tm;
 	struct timeval		timevalue = {LONG_MAX, 0};
 	struct timeval		timeofday;
 	struct timespec		sleepspec, remainder;
-	long				rtt;
-	char				buffer[BUFFERSIZE] = { '\0' };
-	char				remote_time[25] = { '\0' };
-	char				url[URLSIZE] = { '\0' };
-	char				*pdate = NULL;
+	long			rtt;
+	char			buffer[BUFFERSIZE] = { '\0' };
+	char			remote_time[25] = { '\0' };
+	char			url[URLSIZE] = { '\0' };
+	char			*pdate = NULL;
 
 
 	/* Connect to web server via proxy server or directly */
@@ -331,7 +331,7 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 	   and system time (timeofday)
 	*/
 	return( timevalue.tv_sec - timeofday.tv_sec );
-			
+
 }
 
 
@@ -350,8 +350,8 @@ static int setclock( double timedelta, int setmode ) {
 		return(0);
 
 	case 1:						/* Adjust time smoothly */
-		timeofday.tv_sec  = (long)timedelta;	
-		timeofday.tv_usec = (long)((timedelta - timeofday.tv_sec) * 1000000);	
+		timeofday.tv_sec  = (long)timedelta;
+		timeofday.tv_usec = (long)((timedelta - timeofday.tv_sec) * 1000000);
 
 		printlog( 0, "Adjusting %.3f seconds", timedelta );
 
@@ -365,8 +365,8 @@ static int setclock( double timedelta, int setmode ) {
 		gettimeofday( &timeofday, NULL );
 		timedelta += ( timeofday.tv_sec + timeofday.tv_usec*1e-6 );
 
-		timeofday.tv_sec  = (long)timedelta;	
-		timeofday.tv_usec = (long)(timedelta - timeofday.tv_sec) * 1000000;	
+		timeofday.tv_sec  = (long)timedelta;
+		timeofday.tv_usec = (long)(timedelta - timeofday.tv_sec) * 1000000;
 
 		printlog( 0, "Set: %s", asctime(localtime(&timeofday.tv_sec)) );
 
@@ -388,7 +388,7 @@ static int setclock( double timedelta, int setmode ) {
 
 static int htpdate_adjtimex( double drift ) {
 	struct timex		tmx;
-	long				freq;
+	long			freq;
 
 	/* Read current kernel frequency */
 	tmx.modes = 0;
@@ -415,8 +415,8 @@ static int htpdate_adjtimex( double drift ) {
 static void showhelp() {
 	puts("htpdate version "VERSION"\n\
 Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]\n\
-         [-p precision] [-P <proxyserver>[:port]] [-u user[:group]]\n\
-         <host[:port]> ...\n\n\
+		 [-p precision] [-P <proxyserver>[:port]] [-u user[:group]]\n\
+		 <host[:port]> ...\n\n\
   -0    HTTP/1.0 request\n\
   -4    Force IPv4 name resolution only\n\
   -6    Force IPv6 name resolution only\n\
@@ -445,8 +445,8 @@ Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]\n\
 
 /* Run htpdate in daemon mode */
 static void runasdaemon( char *pidfile ) {
-	FILE				*pid_file;
-	pid_t				pid;
+	FILE		*pid_file;
+	pid_t		pid;
 
 	/* Check if htpdate is already running (pid exists)*/
 	pid_file = fopen(pidfile, "r");
@@ -510,33 +510,33 @@ static void runasdaemon( char *pidfile ) {
 
 
 int main( int argc, char *argv[] ) {
-	char				*host = NULL, *proxy = NULL, *proxyport = NULL;
-	char				*port = NULL;
-	char				*hostport = NULL;
-	char				*httpversion = DEFAULT_HTTP_VERSION;
-	char				*pidfile = DEFAULT_PID_FILE;
-	char				*user = NULL, *userstr = NULL, *group = NULL;
-	long long			sumtimes;
-	double				timeavg, drift = 0;
-	int					timedelta[(MAX_HTTP_HOSTS+1)*(MAX_HTTP_HOSTS+1)-1], timestamp;
-	int                 numservers, validtimes, goodtimes, mean;
-	int					nap = 0, when = 500000, precision = 0;
-	int					setmode = 0, burstmode = 0, try, offsetdetect;
-	int					i, burst, param;
-	int					daemonize = 0;
-	int					ipversion = DEFAULT_IP_VERSION;
-	int					timelimit = DEFAULT_TIME_LIMIT;
-	int					minsleep = DEFAULT_MIN_SLEEP;
-	int					maxsleep = DEFAULT_MAX_SLEEP;
-	int					sleeptime = minsleep;
-	int					sw_uid = 0, sw_gid = 0;
-	time_t				starttime = 0;
+	char			*host = NULL, *proxy = NULL, *proxyport = NULL;
+	char			*port = NULL;
+	char			*hostport = NULL;
+	char			*httpversion = DEFAULT_HTTP_VERSION;
+	char			*pidfile = DEFAULT_PID_FILE;
+	char			*user = NULL, *userstr = NULL, *group = NULL;
+	long long		sumtimes;
+	double			timeavg, drift = 0;
+	int			timedelta[(MAX_HTTP_HOSTS+1)*(MAX_HTTP_HOSTS+1)-1], timestamp;
+	int			numservers, validtimes, goodtimes, mean;
+	int			nap = 0, when = 500000, precision = 0;
+	int			setmode = 0, burstmode = 0, try, offsetdetect;
+	int			i, burst, param;
+	int			daemonize = 0;
+	int			ipversion = DEFAULT_IP_VERSION;
+	int			timelimit = DEFAULT_TIME_LIMIT;
+	int			minsleep = DEFAULT_MIN_SLEEP;
+	int			maxsleep = DEFAULT_MAX_SLEEP;
+	int			sleeptime = minsleep;
+	int			sw_uid = 0, sw_gid = 0;
+	time_t			starttime = 0;
 
 	struct passwd		*pw;
 	struct group		*gr;
 
-	extern char			*optarg;
-	extern int			optind;
+	extern char		*optarg;
+	extern int		optind;
 
 
 	/* Parse the command line switches and arguments */
@@ -831,7 +831,7 @@ int main( int argc, char *argv[] ) {
 				sleeptime <<= 1;
 		}
 		if ( debug && daemonize )
-			printlog( 0, "poll %ld s", sleeptime ); 
+			printlog( 0, "poll %ld s", sleeptime );
 
 	} else {
 		printlog( 1, "No server suitable for synchronization found" );
