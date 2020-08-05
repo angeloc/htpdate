@@ -1,5 +1,5 @@
 /*
-	htpdate v1.2.2
+	htpdate v1.2.3
 
 	Eddy Vervest <eddy@vervest.org>
 	http://www.vervest.org/htp
@@ -52,7 +52,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#define VERSION 			"1.2.2"
+#define VERSION 			"1.2.3"
 #define	MAX_HTTP_HOSTS			15			/* 16 web servers */
 #define	DEFAULT_HTTP_PORT		"80"
 #define	DEFAULT_PROXY_PORT		"8080"
