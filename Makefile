@@ -6,7 +6,6 @@ CC ?= gcc
 CFLAGS += -Wall -std=c99 -pedantic -O2
 
 INSTALL = install -c
-STRIP = strip -s
 
 all: htpdate
 
@@ -14,7 +13,6 @@ htpdate: htpdate.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(CPPFLAGS) -o htpdate htpdate.c
 
 install: all
-	$(STRIP) htpdate
 	mkdir -p $(bindir)
 	$(INSTALL) -m 755 htpdate $(bindir)/htpdate
 	mkdir -p $(mandir)/man8
