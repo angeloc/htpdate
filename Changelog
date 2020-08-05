@@ -1,5 +1,10 @@
-Changes in 1.2.2
-----------------
+Changes in 1.2.3
+
+- Fix crosscompiling allowing overwrite CC variable
+- Adding GPLv2 LICENSE file
+
+1.2.2
+-----
 
 - Doc change only (removed reference to FreeBSD and Linux)
 
