@@ -1,4 +1,10 @@
-Changes in 1.2.3
+Changes in 1.2.4
+----------------
+
+- Adding https support
+
+1.2.3
+-----
 
 - Fix crosscompiling allowing overwrite CC variable
 - Adding GPLv2 LICENSE file
