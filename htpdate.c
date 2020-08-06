@@ -464,7 +464,7 @@ static int htpdate_adjtimex( double drift ) {
 
 	/* Read current kernel frequency */
 	tmx.modes = 0;
-	ntp_adjtime(&tmx);
+	adjtimex(&tmx);
 
 	/* Calculate new frequency */
 	freq = (long)(65536e6 * drift);
@@ -479,7 +479,7 @@ static int htpdate_adjtimex( double drift ) {
 
 	/* Become root */
 	swuid(0);
-	return( ntp_adjtime(&tmx) );
+	return( adjtimex(&tmx) );
 
 }
 
