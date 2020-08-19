@@ -49,8 +49,14 @@ In general, if more web servers are specified, the accuracy will increase.
 
 See manpage for more details.
 
-
 New features
------
+------------
 
 Version v1.2.4 introduced https support.
+
+Maintenance
+-----------
+
+This project is a fork based on htp from Eddy Vervest (http://www.vervest.org/htp).
+The fork was needed due to the fact that the project was abandoned and I wanted to
+add some features.
