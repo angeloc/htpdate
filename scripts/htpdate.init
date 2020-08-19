@@ -11,39 +11,52 @@
 # Short-Description: Start htpdate daemon
 ### END INIT INFO
 
+DAEMON="htpdate"
+PIDFILE="/var/run/$DAEMON.pid"
 
-test -x /usr/bin/htpdate || exit 0
+HTPDATE_ARGS="-a -s -t http://www.google.com https://google.com"
+test -r "/etc/default/$DAEMON" && . "/etc/default/$DAEMON"
 
-PIDFILE="/var/run/htpdate.pid"
-SERVERS="www.example.com"
+start() {
+	printf 'Starting %s: ' "$DAEMON"
+	# shellcheck disable=SC2086 # we need the word splitting
+	start-stop-daemon -S -q -x "/usr/bin/$DAEMON" \
+		-- -D -i "$PIDFILE" $HTPDATE_ARGS
+	status=$?
+	if [ "$status" -eq 0 ]; then
+		echo "OK"
+	else
+		echo "FAIL"
+	fi
+	return "$status"
+}
 
-# See how we were called.
+stop() {
+	printf 'Stopping %s: ' "$DAEMON"
+	start-stop-daemon -K -q -p "$PIDFILE"
+	status=$?
+	if [ "$status" -eq 0 ]; then
+		rm -f "$PIDFILE"
+		echo "OK"
+	else
+		echo "FAIL"
+	fi
+	return "$status"
+}
+
+restart() {
+	stop
+	sleep 1
+	start
+}
+
 case "$1" in
-	start)
-		echo "Starting HTTP Time Protocol daemon: htpdate"
-		# Set the time first before daemonizing, because the time offset
-		# might be too big for smooth time adjustment
-		/usr/bin/htpdate -D -s -i $PIDFILE $SERVERS
-		;;
-	stop)
-		echo "Stopping HTTP Time Protocol daemon: htpdate"
-		if [ -f $PIDFILE ]
-		then
-			kill `cat $PIDFILE`
-		else
-			echo "$PIDFILE not found"
-		fi
-		rm -f $PIDFILE
-		;;
-	restart)
-		$0 stop
-		$0 start
-		;;
+	start|stop|restart)
+		"$1";;
+	reload)
+		# Restart, since there is no true "reload" feature.
+		restart;;
 	*)
-		echo "Usage: $0 {start|stop|restart}"
+		echo "Usage: $0 {start|stop|restart|reload}"
 		exit 1
 esac
-
-exit 0
-
-# vi:set ts=4:
