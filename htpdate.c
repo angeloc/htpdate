@@ -782,6 +782,10 @@ int main( int argc, char *argv[] ) {
 		port = DEFAULT_HTTP_PORT;
 		splithostport( &host, &port );
 
+		if (strncmp (port, "443", 3) == 0)
+			printlog( 1, "HTTPS support not compiled in, "
+					"cannot get timestamp from %s", host);
+
 		/* if burst mode, reset "when" */
 		if ( burstmode ) {
 			if ( precision )
