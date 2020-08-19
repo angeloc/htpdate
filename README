@@ -29,6 +29,7 @@ Tested on Linux and FreeBSD only, but should work for most Unix flavors.
 An example init script (scripts/htpdate.init) for use in /etc/init.d/
 is included, but not installed automatically. This scripts with run
 htpdate as a daemon.
+There is also a service file example for systemd (scripts/htpdate.service).
 
 Another option is to use htpdate in a cronjob and start it periodically
 from cron. For a daily time sync it would look something like this:
