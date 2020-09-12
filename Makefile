@@ -4,10 +4,11 @@ mandir = ${prefix}/share/man
 
 CC ?= gcc
 CFLAGS += -Wall -std=c99 -pedantic -O2
+PKG_CONFIG ?= pkg-config
 
 ifdef ENABLE_HTTPS
 CFLAGS += -DENABLE_HTTPS
-LDFLAGS += -lssl -lcrypto
+LDFLAGS += $(shell $(PKG_CONFIG) --libs openssl)
 endif
 
 INSTALL = install -c
