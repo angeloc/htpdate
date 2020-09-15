@@ -1,5 +1,5 @@
 /*
-	htpdate v1.2.4
+	htpdate v1.2.5
 
 	Author: Angelo Compagnucci <angelo.compagnucci@gmail.com>
 	https://github.com/angeloc/htpdate
@@ -60,7 +60,7 @@
 #include <openssl/ssl.h>
 #endif
 
-#define VERSION 			"1.2.4"
+#define VERSION 			"1.2.5"
 #define	MAX_HTTP_HOSTS			15			/* 16 web servers */
 #define	DEFAULT_HTTP_PORT		"80"
 #define	DEFAULT_PROXY_PORT		"8080"
