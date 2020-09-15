@@ -1,5 +1,10 @@
-Changes in 1.2.4
+Changes in 1.2.5
 ----------------
+
+- Fix crosscompiling using pkg-config for openssl LDFLAGS
+
+1.2.4
+-----
 
 - Adding https support
 
