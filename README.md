@@ -39,13 +39,14 @@ from cron. For a daily time sync it would look something like this:
 Usage
 -----
 
-Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]
+Usage:
+
+    htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]
 	[-p precision] [-P <proxyserver>[:port]] [-u user[:group]]
 	<host[:port]> ...
 
 	Eg. htpdate -q www.example.com
 	Eg. htpdate -a -t https://www.example.com http://www.example.com
-
 
 In general, if more web servers are specified, the accuracy will increase.
 
@@ -60,5 +61,5 @@ Maintenance
 -----------
 
 This project is a fork based on htp from Eddy Vervest (http://www.vervest.org/htp).
-The fork was needed due to the fact that the project was abandoned and I wanted to
-add some features.
+This fork exists only because original project is unmaintained and there are no other
+active forks.
