@@ -8,7 +8,7 @@ PKG_CONFIG ?= pkg-config
 
 ifdef ENABLE_HTTPS
 CFLAGS += -DENABLE_HTTPS
-LDFLAGS += $(shell $(PKG_CONFIG) --libs openssl)
+LDLIBS = $(shell $(PKG_CONFIG) --libs openssl)
 endif
 
 INSTALL = install -c
@@ -16,7 +16,7 @@ INSTALL = install -c
 all: htpdate
 
 htpdate: htpdate.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o htpdate htpdate.c $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o htpdate htpdate.c $(LDLIBS)
 
 install: all
 	mkdir -p $(bindir)
