@@ -3,7 +3,7 @@
 htpdate \- Time synchronization (daemon)
 .SH "SYNOPSIS"
 .B htpdate
-[\-046abdhlqstxD] [\-i pid file] [\-m minpoll] [\-M maxpoll] [\-p precision] [\-P <proxyserver>[:port]] [\-u user[:group]] <host[:port]> ...
+[\-046abdhlqstxDF] [\-i pid file] [\-m minpoll] [\-M maxpoll] [\-p precision] [\-P <proxyserver>[:port]] [\-u user[:group]] <host[:port]> ...
 .SH "DESCRIPTION"
 The HTTP Time Protocol (HTP) is used to synchronize a computer's
 time with web servers as reference time source. Htp will synchronize
@@ -67,6 +67,10 @@ Let htpdate compensate for the systematisch clock drift.
 .TP
 .I \-D
 Run as daemon (requires root privileges).
+.TP
+.I \-F
+Run in the foreground (requires root privileges). This is the same as \-D but
+will not fork or write a PID file.
 .TP 
 .I \-P
 Proxy server hostname or ip-address.
@@ -101,6 +105,10 @@ HTTP/1.0 request in IPv6 literal format (RFC 2732):
 Run htpdate as daemon:
 .br
 \&       htpdate \-D www.example.com
+.P
+Run htpdate in the foreground with all output going to the terminal:
+.br
+\&       htpdate \-F www.example.com
 .P
 Daemon mode for the security minded:
 .br
