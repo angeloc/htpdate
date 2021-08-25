@@ -552,6 +552,10 @@ static void runasdaemon( char *pidfile ) {
 	/* Change the file mode mask */
 	umask(0);
 
+	/* If the user has specified a relative path, prepend the curdir */
+	char *abs_path = malloc( PATH_MAX );
+	realpath(pidfile, abs_path);
+
 	/* Change the current working directory */
 	if ( chdir("/") < 0 ) {
 		printlog( 1, "chdir()" );
@@ -567,7 +571,8 @@ static void runasdaemon( char *pidfile ) {
 
 	if ( pid > 0 ) {
 		/* Write a pid file */
-		pid_file = fopen( pidfile, "w" );
+		pid_file = fopen( abs_path, "w" );
+		free( abs_path );
 		if ( !pid_file ) {
 			printlog( 1, "Error writing pid file" );
 			exit(1);
