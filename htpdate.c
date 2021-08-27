@@ -55,6 +55,7 @@
 #include <limits.h>
 #include <pwd.h>
 #include <grp.h>
+#include <errno.h>
 
 #ifdef ENABLE_HTTPS
 #include <openssl/ssl.h>
@@ -521,8 +522,17 @@ static void runasdaemon( char *pidfile ) {
 	FILE		*pid_file;
 	pid_t		pid;
 
+	/* If the user has specified a relative path, prepend the curdir */
+	char *abs_path = malloc( PATH_MAX );
+	char *ret __attribute__((unused)) = realpath(pidfile, abs_path);
+
+	if (errno && errno != ENOENT) {
+		printlog( 1, "error getting pid file path" );
+		exit(1);
+	}
+
 	/* Check if htpdate is already running (pid exists)*/
-	pid_file = fopen(pidfile, "r");
+	pid_file = fopen(abs_path, "r");
 	if ( pid_file ) {
 		fputs( "htpdate already running\n", stderr );
 		exit(1);
@@ -551,10 +561,6 @@ static void runasdaemon( char *pidfile ) {
 
 	/* Change the file mode mask */
 	umask(0);
-
-	/* If the user has specified a relative path, prepend the curdir */
-	char *abs_path = malloc( PATH_MAX );
-	realpath(pidfile, abs_path);
 
 	/* Change the current working directory */
 	if ( chdir("/") < 0 ) {
