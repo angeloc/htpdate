@@ -19,15 +19,19 @@ Installation from source
 
 Tested on Linux and FreeBSD only, but should work for most Unix flavors.
 
-	$ tar zxvf htpdate-x.y.z.tar.gz
+	$ tar zxvf htpdate-x.y.z.zip
 		or
-	$ tar jxvf htpdate-x.y.z.tar.bz2
+	$ tar jxvf htpdate-x.y.z.tar.gz
 	$ cd htpdate-X.Y.Z
 	$ make
 	$ make install
 
+To compile with HTTPS support, install openssl development files
+
+    $ make ENABLE_HTTPS=1
+
 An example init script (scripts/htpdate.init) for use in /etc/init.d/
-is included, but not installed automatically. This scripts with run
+is included, but not installed automatically. This scripts will run
 htpdate as a daemon.
 There is also a service file example for systemd (scripts/htpdate.service).
 
