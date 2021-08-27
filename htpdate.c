@@ -101,11 +101,10 @@ time_t gmtmktime (struct tm *tm)
 
 	/* Restore timezone */
 	if (tz) {
-	  setenv("TZ", tz, 1);
-	  free (tz);
-	}
-	else {
-	  unsetenv("TZ");
+		setenv("TZ", tz, 1);
+		free (tz);
+	} else {
+		unsetenv("TZ");
 	}
 	tzset();
 
@@ -114,7 +113,8 @@ time_t gmtmktime (struct tm *tm)
 
 
 /* Insertion sort is more efficient (and smaller) than qsort for small lists */
-static void insertsort( int a[], int length ) {
+static void insertsort( int a[], int length )
+{
 	int i, j, value;
 
 	for ( i = 1; i < length; i++ ) {
@@ -129,7 +129,8 @@ static void insertsort( int a[], int length ) {
 /* Split argument in hostname/IP-address and TCP port
    Supports IPv6 literal addresses, RFC 2732.
 */
-static void splithostport( char **host, char **port ) {
+static void splithostport( char **host, char **port )
+{
 	char    *rb, *rc, *lb, *lc;
 
 	lb = strchr( *host, '[' );
@@ -137,13 +138,13 @@ static void splithostport( char **host, char **port ) {
 	lc = strchr( *host, ':' );
 	rc = strrchr( *host, ':' );
 
-	if (strstr(*host, "https://") == *host){
+	if (strstr(*host, "https://") == *host) {
 		*host = *host + strlen("https://");
 		*port = "443\0";
 		return;
 	}
 
-	if (strstr(*host, "http://") == *host){
+	if (strstr(*host, "http://") == *host) {
 		*host = *host + strlen("http://");
 		*port = "80\0";
 		return;
@@ -174,7 +175,8 @@ static void splithostport( char **host, char **port ) {
 
 
 /* Printlog is a slighty modified version from the one used in rdate */
-static void printlog( int is_error, char *format, ... ) {
+static void printlog( int is_error, char *format, ... )
+{
 	va_list args;
 	char buf[128];
 
@@ -190,20 +192,23 @@ static void printlog( int is_error, char *format, ... ) {
 
 
 /* Drop or elevate privileges */
-static void swuid( int id ) {
+static void swuid( int id )
+{
 	if ( seteuid( id ) ) {
 		printlog( 1, "seteuid() %i", id );
 		exit(1);
 	}
 }
-static void swgid( int id ) {
+static void swgid( int id )
+{
 	if ( setegid( id ) ) {
 		printlog( 1, "setegid() %i", id );
 		exit(1);
 	}
 }
 
-static int getHTTP (int server_s, char *buffer) {
+static int getHTTP (int server_s, char *buffer)
+{
 	int ret;
 
 	/* Send HEAD request */
@@ -225,7 +230,8 @@ static int getHTTP (int server_s, char *buffer) {
 }
 
 #ifdef ENABLE_HTTPS
-static int getHTTPS (int server_s, char *buffer) {
+static int getHTTPS (int server_s, char *buffer)
+{
 	int ret;
 	SSL_CTX *ssl_ctx = SSL_CTX_new (SSLv23_client_method ());
 
@@ -251,7 +257,8 @@ static int getHTTPS (int server_s, char *buffer) {
 }
 #endif
 
-static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, char *httpversion, int ipversion, int when ) {
+static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, char *httpversion, int ipversion, int when )
+{
 	int			server_s;
 	int			rc;
 	struct addrinfo		hints, *res, *res0;
@@ -275,14 +282,14 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 	/* Connect to web server via proxy server or directly */
 	memset( &hints, 0, sizeof(hints) );
 	switch( ipversion ) {
-		case 4:					/* IPv4 only */
-			hints.ai_family = AF_INET;
-			break;
-		case 6:					/* IPv6 only */
-			hints.ai_family = AF_INET6;
-			break;
-		default:				/* Support IPv6 and IPv4 name resolution */
-			hints.ai_family = PF_UNSPEC;
+	case 4:					/* IPv4 only */
+		hints.ai_family = AF_INET;
+		break;
+	case 6:					/* IPv6 only */
+		hints.ai_family = AF_INET6;
+		break;
+	default:				/* Support IPv6 and IPv4 name resolution */
+		hints.ai_family = PF_UNSPEC;
 	}
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_CANONNAME;
@@ -373,12 +380,12 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 
 		/* rtt contains round trip time in micro seconds, now! */
 		rtt = ( timeofday.tv_sec - rtt ) * 1000000 + \
-			timeofday.tv_usec - when;
+		      timeofday.tv_usec - when;
 
 		/* Look for the line that contains Date: */
 		if ( ((pdate = strstr(buffer, "Date: ")) != NULL ||
-			(pdate = strstr(buffer, "date: ")) != NULL) &&
-				strlen( pdate ) >= 35 ) {
+		      (pdate = strstr(buffer, "date: ")) != NULL) &&
+		     strlen( pdate ) >= 35 ) {
 			strncpy(remote_time, pdate + 11, 24);
 
 			memset(&tm, 0, sizeof(struct tm));
@@ -391,7 +398,7 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 			/* Print host, raw timestamp, round trip time */
 			if ( debug )
 				printlog( 0, "%-25s %s %s (%.3f) => %li", host, port, remote_time, \
-				  rtt * 1e-6, timevalue.tv_sec - timeofday.tv_sec );
+				          rtt * 1e-6, timevalue.tv_sec - timeofday.tv_sec );
 
 		} else {
 			printlog( 1, "%s no timestamp", host );
@@ -407,7 +414,8 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 }
 
 
-static int setclock( double timedelta, int setmode ) {
+static int setclock( double timedelta, int setmode )
+{
 	struct timeval		timeofday;
 
 	if ( timedelta == 0 ) {
@@ -458,7 +466,8 @@ static int setclock( double timedelta, int setmode ) {
 }
 
 
-static int htpdate_adjtimex( double drift ) {
+static int htpdate_adjtimex( double drift )
+{
 	struct timex		tmx;
 	long			freq;
 
@@ -484,11 +493,12 @@ static int htpdate_adjtimex( double drift ) {
 }
 
 
-static void showhelp() {
+static void showhelp()
+{
 	puts("htpdate version "VERSION"\n\
 Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]\n\
-		 [-p precision] [-P <proxyserver>[:port]] [-u user[:group]]\n\
-		 <host[:port]> ...\n\n\
+               [-p precision] [-P <proxyserver>[:port]] [-u user[:group]]\n\
+               <host[:port]> ...\n\n\
   -0    HTTP/1.0 request\n\
   -4    Force IPv4 name resolution only\n\
   -6    Force IPv6 name resolution only\n\
@@ -517,7 +527,8 @@ Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]\n\
 
 
 /* Run htpdate in daemon mode */
-static void runasdaemon( char *pidfile ) {
+static void runasdaemon( char *pidfile )
+{
 	FILE		*pid_file;
 	pid_t		pid;
 
@@ -582,7 +593,8 @@ static void runasdaemon( char *pidfile ) {
 }
 
 
-int main( int argc, char *argv[] ) {
+int main( int argc, char *argv[] )
+{
 	char			*host = NULL, *proxy = NULL, *proxyport = NULL;
 	char			*port = NULL;
 	char			*hostport = NULL;
@@ -615,7 +627,7 @@ int main( int argc, char *argv[] ) {
 
 	/* Parse the command line switches and arguments */
 	while ( (param = getopt(argc, argv, "046abdhi:lm:p:qstu:xDFM:P:") ) != -1)
-	switch( param ) {
+		switch( param ) {
 
 		case '0':			/* HTTP/1.0 */
 			httpversion = "0";
@@ -715,7 +727,7 @@ int main( int argc, char *argv[] ) {
 			return 1;
 		default:
 			abort();
-	}
+		}
 
 	/* Display help page, if no servers are specified */
 	if ( argv[optind] == NULL ) {
@@ -771,171 +783,171 @@ int main( int argc, char *argv[] ) {
 	/* Infinite poll cycle loop in daemonize or foreground mode */
 	do {
 
-	/* Initialize number of received valid timestamps, good timestamps
-	   and the average of the good timestamps
-	*/
-	validtimes = goodtimes = sumtimes = offsetdetect = 0;
-	if ( precision )
-		when = precision;
-	else
-		when = nap;
+		/* Initialize number of received valid timestamps, good timestamps
+		   and the average of the good timestamps
+		*/
+		validtimes = goodtimes = sumtimes = offsetdetect = 0;
+		if ( precision )
+			when = precision;
+		else
+			when = nap;
 
-	/* Loop through the time sources (web servers); poll cycle */
-	for ( i = optind; i < argc; i++ ) {
+		/* Loop through the time sources (web servers); poll cycle */
+		for ( i = optind; i < argc; i++ ) {
 
-		/* host:port is stored in argv[i] */
-		hostport = (char *)argv[i];
-		host = strdup(hostport);
-		port = DEFAULT_HTTP_PORT;
-		splithostport( &host, &port );
+			/* host:port is stored in argv[i] */
+			hostport = (char *)argv[i];
+			host = strdup(hostport);
+			port = DEFAULT_HTTP_PORT;
+			splithostport( &host, &port );
 
 #ifndef ENABLE_HTTPS
-		if (strncmp (port, "443", 3) == 0)
-			printlog( 1, "HTTPS support not compiled in, "
-					"cannot get timestamp from %s", host);
+			if (strncmp (port, "443", 3) == 0)
+				printlog( 1, "HTTPS support not compiled in, "
+				          "cannot get timestamp from %s", host);
 #endif
 
-		/* if burst mode, reset "when" */
-		if ( burstmode ) {
-			if ( precision )
-				when = precision;
-			else
-				when = nap;
-		}
-
-		burst = 0;
-		do {
-			/* Retry if first poll shows time offset */
-			try = MAX_ATTEMPT;
-			do {
-				if ( debug ) printlog( 0, "burst: %d try: %d when: %d", \
-					burst + 1, MAX_ATTEMPT - try + 1, when );
-				timestamp = getHTTPdate( host, port, proxy, proxyport,\
-						httpversion, ipversion, when );
-				try--;
-			} while ( timestamp && try );
-
-			/* Only include valid responses in timedelta[] */
-			if ( timestamp < timelimit && timestamp > -timelimit ) {
-				timedelta[validtimes] = timestamp;
-				validtimes++;
+			/* if burst mode, reset "when" */
+			if ( burstmode ) {
+				if ( precision )
+					when = precision;
+				else
+					when = nap;
 			}
 
-			/* If we detected a time offset, set the flag */
-			if ( timestamp )
-				offsetdetect = 1;
+			burst = 0;
+			do {
+				/* Retry if first poll shows time offset */
+				try = MAX_ATTEMPT;
+				do {
+					if ( debug ) printlog( 0, "burst: %d try: %d when: %d", \
+						                       burst + 1, MAX_ATTEMPT - try + 1, when );
+					timestamp = getHTTPdate( host, port, proxy, proxyport,\
+					                         httpversion, ipversion, when );
+					try--;
+				} while ( timestamp && try );
 
-			/* Take a nap, to spread polls equally within a second.
-			   Example:
-			   2 servers => 0.333, 0.666
-			   3 servers => 0.250, 0.500, 0.750
-			   4 servers => 0.200, 0.400, 0.600, 0.800
-			   ...
-			   nap = 1000000 / (#servers + 1)
-
-			   or when "precision" is specified, a different algorithm is used
-			*/
-			when += nap;
-
-			burst++;
-		} while ( burst < (argc - optind) * burstmode );
-
-		/* Sleep for a while, unless we detected a time offset */
-		if ( (daemonize || foreground) && !offsetdetect )
-			sleep( sleeptime / numservers );
-
-	}
-
-	/* Sort the timedelta results */
-	insertsort( timedelta, validtimes );
-
-	/* Mean time value */
-	mean = timedelta[validtimes/2];
-
-	/* Filter out the bogus timevalues. A timedelta which is more than
-	   1 seconde off from mean, is considered a 'false ticker'.
-	   NTP synced web servers can never be more off than a second.
-	*/
-	for ( i = 0; i < validtimes; i++ ) {
-		if ( timedelta[i]-mean <= 1 && timedelta[i]-mean >= -1 ) {
-			sumtimes += timedelta[i];
-			goodtimes++;
-		}
-	}
-
-	/* Check if we have at least one valid response */
-	if ( goodtimes ) {
-
-		timeavg = sumtimes/(double)goodtimes;
-
-		if ( debug ) {
-			printlog( 0, "#: %d mean: %d average: %.3f", goodtimes, \
-					mean, timeavg );
-		}
-
-		/* Do I really need to change the time?  */
-		if ( sumtimes || !(daemonize || foreground) ) {
-			/* If a precision was specified and the time offset is small
-			   (< +-1 second), adjust the time with the value of precision
-			*/
-			if ( precision && sumtimes < goodtimes && sumtimes > -goodtimes )
-				timeavg = (double)precision / 1000000 * sign(sumtimes);
-
-			/* Correct the clock, if not in "adjtimex" mode */
-			if ( setclock( timeavg, setmode ) < 0 )
-					printlog( 1, "Time change failed" );
-
-			/* Drop root privileges again */
-			swuid( sw_uid );
-
-			if ( daemonize || foreground ) {
-				if ( starttime ) {
-					/* Calculate systematic clock drift */
-					drift = timeavg / ( time(NULL) - starttime );
-					printlog( 0, "Drift %.2f PPM, %.2f s/day", \
-							drift*1e6, drift*86400 );
-
-					/* Adjust system clock */
-					if ( setmode == 3 ) {
-						starttime = time(NULL);
-						/* Adjust the kernel clock */
-						if ( htpdate_adjtimex( drift ) < 0 )
-							printlog( 1, "Frequency change failed" );
-
-						/* Drop root privileges again */
-						swuid( sw_uid );
-					}
-				} else {
-					starttime = time(NULL);
+				/* Only include valid responses in timedelta[] */
+				if ( timestamp < timelimit && timestamp > -timelimit ) {
+					timedelta[validtimes] = timestamp;
+					validtimes++;
 				}
 
-				/* Decrease polling interval to minimum */
-				sleeptime = minsleep;
+				/* If we detected a time offset, set the flag */
+				if ( timestamp )
+					offsetdetect = 1;
 
-				/* Sleep for 30 minutes after a time adjust or set */
-				sleep( DEFAULT_MIN_SLEEP );
-			}
-		} else {
-			/* Increase polling interval */
-			if ( sleeptime < maxsleep )
-				sleeptime <<= 1;
+				/* Take a nap, to spread polls equally within a second.
+				   Example:
+				   2 servers => 0.333, 0.666
+				   3 servers => 0.250, 0.500, 0.750
+				   4 servers => 0.200, 0.400, 0.600, 0.800
+				   ...
+				   nap = 1000000 / (#servers + 1)
+
+				   or when "precision" is specified, a different algorithm is used
+				*/
+				when += nap;
+
+				burst++;
+			} while ( burst < (argc - optind) * burstmode );
+
+			/* Sleep for a while, unless we detected a time offset */
+			if ( (daemonize || foreground) && !offsetdetect )
+				sleep( sleeptime / numservers );
+
 		}
-		if ( debug && (daemonize || foreground) )
-			printlog( 0, "poll %ld s", sleeptime );
 
-	} else {
-		printlog( 1, "No server suitable for synchronization found" );
-		/* Sleep for minsleep to avoid flooding */
-		if ( daemonize || foreground )
-			sleep( minsleep );
-		else
-			exit(1);
-	}
+		/* Sort the timedelta results */
+		insertsort( timedelta, validtimes );
 
-	/* After first poll cycle do not step through time, only adjust */
-	if ( setmode != 3 ) {
-		setmode = 1;
-	}
+		/* Mean time value */
+		mean = timedelta[validtimes/2];
+
+		/* Filter out the bogus timevalues. A timedelta which is more than
+		   1 seconde off from mean, is considered a 'false ticker'.
+		   NTP synced web servers can never be more off than a second.
+		*/
+		for ( i = 0; i < validtimes; i++ ) {
+			if ( timedelta[i]-mean <= 1 && timedelta[i]-mean >= -1 ) {
+				sumtimes += timedelta[i];
+				goodtimes++;
+			}
+		}
+
+		/* Check if we have at least one valid response */
+		if ( goodtimes ) {
+
+			timeavg = sumtimes/(double)goodtimes;
+
+			if ( debug ) {
+				printlog( 0, "#: %d mean: %d average: %.3f", goodtimes, \
+				          mean, timeavg );
+			}
+
+			/* Do I really need to change the time?  */
+			if ( sumtimes || !(daemonize || foreground) ) {
+				/* If a precision was specified and the time offset is small
+				   (< +-1 second), adjust the time with the value of precision
+				*/
+				if ( precision && sumtimes < goodtimes && sumtimes > -goodtimes )
+					timeavg = (double)precision / 1000000 * sign(sumtimes);
+
+				/* Correct the clock, if not in "adjtimex" mode */
+				if ( setclock( timeavg, setmode ) < 0 )
+					printlog( 1, "Time change failed" );
+
+				/* Drop root privileges again */
+				swuid( sw_uid );
+
+				if ( daemonize || foreground ) {
+					if ( starttime ) {
+						/* Calculate systematic clock drift */
+						drift = timeavg / ( time(NULL) - starttime );
+						printlog( 0, "Drift %.2f PPM, %.2f s/day", \
+						          drift*1e6, drift*86400 );
+
+						/* Adjust system clock */
+						if ( setmode == 3 ) {
+							starttime = time(NULL);
+							/* Adjust the kernel clock */
+							if ( htpdate_adjtimex( drift ) < 0 )
+								printlog( 1, "Frequency change failed" );
+
+							/* Drop root privileges again */
+							swuid( sw_uid );
+						}
+					} else {
+						starttime = time(NULL);
+					}
+
+					/* Decrease polling interval to minimum */
+					sleeptime = minsleep;
+
+					/* Sleep for 30 minutes after a time adjust or set */
+					sleep( DEFAULT_MIN_SLEEP );
+				}
+			} else {
+				/* Increase polling interval */
+				if ( sleeptime < maxsleep )
+					sleeptime <<= 1;
+			}
+			if ( debug && (daemonize || foreground) )
+				printlog( 0, "poll %ld s", sleeptime );
+
+		} else {
+			printlog( 1, "No server suitable for synchronization found" );
+			/* Sleep for minsleep to avoid flooding */
+			if ( daemonize || foreground )
+				sleep( minsleep );
+			else
+				exit(1);
+		}
+
+		/* After first poll cycle do not step through time, only adjust */
+		if ( setmode != 3 ) {
+			setmode = 1;
+		}
 
 	} while ( daemonize || foreground );		/* end of infinite while loop */
 
