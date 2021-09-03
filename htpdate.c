@@ -363,6 +363,9 @@ static long getHTTPdate( char *host, char *port, char *proxy, char *proxyport, c
 #endif
 		rc = getHTTP(server_s, buffer);
 
+	if ( !rc )
+		printlog( 1, "error getting data from %s:%s", host, port );
+
 	if ( rc ) {
 		/* Assuming that network delay (server->htpdate) is neglectable,
 		   the received web server time "should" match the local time.
