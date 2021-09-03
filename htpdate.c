@@ -233,7 +233,7 @@ static int getHTTP (int server_s, char *buffer)
 static int getHTTPS (int server_s, char *buffer)
 {
 	int ret;
-	SSL_CTX *ssl_ctx = SSL_CTX_new (SSLv23_client_method ());
+	SSL_CTX *ssl_ctx = SSL_CTX_new (TLS_method());
 
 	SSL *conn = SSL_new(ssl_ctx);
 	SSL_set_fd(conn, server_s);
