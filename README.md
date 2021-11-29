@@ -65,5 +65,8 @@ Maintenance
 -----------
 
 This project is a fork based on htp from Eddy Vervest (http://www.vervest.org/htp).
-This fork exists only because original project is unmaintained and there are no other
-active forks.
+This fork exists only because I was unable to submit patches to the original project due to the lack of a public repository available.
+
+A year after this fork, the original author opened a repository on [https://github.com/twekkel/htpdate](https://github.com/twekkel/htpdate).
+
+Use this fork if you need https support and some other fixes, use the main author project for a maintained version of the original software.
