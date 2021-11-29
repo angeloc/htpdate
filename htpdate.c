@@ -60,6 +60,10 @@
 #include <openssl/ssl.h>
 #endif
 
+#if defined BSD || defined __FreeBSD__
+#define adjtimex ntp_adjtime
+#endif
+
 #define VERSION 			"1.2.6"
 #define	MAX_HTTP_HOSTS			15			/* 16 web servers */
 #define	DEFAULT_HTTP_PORT		"80"
