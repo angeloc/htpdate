@@ -71,6 +71,7 @@
 #define	DEFAULT_IP_VERSION		PF_UNSPEC		/* IPv6 and IPv4 */
 #define	DEFAULT_HTTP_VERSION		"1"			/* HTTP/1.1 */
 #define	DEFAULT_TIME_LIMIT		31536000		/* 1 year */
+#define	NO_TIME_LIMIT			-1
 #define	DEFAULT_MIN_SLEEP		1800			/* 30 minutes */
 #define	DEFAULT_MAX_SLEEP		115200			/* 32 hours */
 #define	MAX_DRIFT			32768000		/* 500 PPM */
@@ -688,7 +689,7 @@ int main( int argc, char *argv[] )
 			setmode = 2;
 			break;
 		case 't':			/* disable "sanity" time check */
-			timelimit = 2100000000;
+			timelimit = NO_TIME_LIMIT;
 			break;
 		case 'u':			/* drop root privileges and run as user */
 			user = (char *)optarg;
@@ -839,7 +840,7 @@ int main( int argc, char *argv[] )
 				} while ( timestamp && try );
 
 				/* Only include valid responses in timedelta[] */
-				if ( timestamp < timelimit && timestamp > -timelimit ) {
+				if ( timelimit == NO_TIME_LIMIT || ( timestamp < timelimit && timestamp > -timelimit ) ) {
 					timedelta[validtimes] = timestamp;
 					validtimes++;
 				}
