@@ -138,13 +138,17 @@ static void splithostport( char **host, char **port )
 	lc = strchr( *host, ':' );
 	rc = strrchr( *host, ':' );
 
+	/* A (litteral) address with "https://" prefix */
 	if (strstr(*host, "https://") == *host) {
+		rc[0] = '\0';
 		*host = *host + strlen("https://");
 		*port = "443\0";
 		return;
 	}
 
+	/* A (litteral) address with "http://" prefix */
 	if (strstr(*host, "http://") == *host) {
+		rc[0] = '\0';
 		*host = *host + strlen("http://");
 		*port = "80\0";
 		return;
