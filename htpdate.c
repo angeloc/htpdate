@@ -478,7 +478,7 @@ static int setclock( double timedelta, int setmode )
 }
 
 
-static int htpdate_adjtimex( double drift )
+static int htpdate_adjtimex( double drift , int sync_kernel)
 {
 	struct timex		tmx;
 	long			freq;
@@ -497,6 +497,11 @@ static int htpdate_adjtimex( double drift )
 
 	printlog( 0, "Adjusting frequency %li", tmx.freq );
 	tmx.modes = MOD_FREQUENCY;
+
+	if ( sync_kernel ) {
+		tmx.status &= ~STA_UNSYNC;
+		tmx.modes |= (MOD_STATUS | MOD_ESTERROR | MOD_MAXERROR);
+	}
 
 	/* Become root */
 	swuid(0);
@@ -524,6 +529,7 @@ Usage: htpdate [-046abdhlqstxD] [-i pid file] [-m minpoll] [-M maxpoll]\n\
   -l    use syslog for output\n\
   -m    minimum poll interval\n\
   -M    maximum poll interval\n\
+  -n    notify kernel for synced time\n\
   -p    precision (ms)\n\
   -P    proxy server\n\
   -q    query only, don't make time changes (default)\n\
@@ -629,6 +635,7 @@ int main( int argc, char *argv[] )
 	int			sleeptime = minsleep;
 	int			sw_uid = 0, sw_gid = 0;
 	time_t			starttime = 0;
+	int 			kernel_sync = 0;
 
 	struct passwd		*pw;
 	struct group		*gr;
@@ -734,6 +741,9 @@ int main( int argc, char *argv[] )
 			proxy = (char *)optarg;
 			proxyport = DEFAULT_PROXY_PORT;
 			splithostport( &proxy, &proxyport );
+			break;
+		case 'n':
+			kernel_sync = 1;
 			break;
 		case '?':
 			return 1;
@@ -923,7 +933,7 @@ int main( int argc, char *argv[] )
 						if ( setmode == 3 ) {
 							starttime = time(NULL);
 							/* Adjust the kernel clock */
-							if ( htpdate_adjtimex( drift ) < 0 )
+							if ( htpdate_adjtimex( drift , kernel_sync ) < 0 )
 								printlog( 1, "Frequency change failed" );
 
 							/* Drop root privileges again */

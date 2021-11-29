@@ -46,6 +46,11 @@ Use syslog for output (levels LOG_WARNING and LOG_INFO). Convenient if you use h
 .TP 
 .I \-m \-M
 These options specify the minimum (\-m) and maximum (\-M) polling intervals for HTP requests, in seconds. The default range is between 30 minutes and 32 hours. Htpdate calculates the optimal polling frequency between minimum and maximum values. Only applicable when running in daemon mode.
+.TP
+.I \-n
+When using this option, STA_UNSYNC will be cleared out signaling the kernel the time was accurately synchronized. This is not always the case with htpdate so use this option should be used on when really needed.
+.TP
+
 .TP 
 .I \-p
 Precision (in milliseconds) specifies the operating accuracy of htpdate. Internally htpdate uses a different algorithm to detect a time offset, when precision is specified. Precision only has effect in daemon mode. Use with causion.
