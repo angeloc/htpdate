@@ -910,7 +910,7 @@ int main( int argc, char *argv[] )
 					printlog( 1, "Time change failed" );
 
 				/* Drop root privileges again */
-				swuid( sw_uid );
+				if ( sw_uid ) swuid( sw_uid );
 
 				if ( daemonize || foreground ) {
 					if ( starttime ) {
@@ -927,7 +927,7 @@ int main( int argc, char *argv[] )
 								printlog( 1, "Frequency change failed" );
 
 							/* Drop root privileges again */
-							swuid( sw_uid );
+							if ( sw_uid ) swuid( sw_uid );
 						}
 					} else {
 						starttime = time(NULL);
