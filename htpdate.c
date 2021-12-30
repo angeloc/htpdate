@@ -248,20 +248,27 @@ static int getHTTPS (int server_s, char *buffer)
 	SSL_set_fd(conn, server_s);
 
 	int err = SSL_connect(conn);
-	if (err != 1)
-		return 0;
+	if (err != 1) {
+		printlog( 1, "Error connecting" );
+		ret = 0;
+		goto exit;
+	}
 
 	ret = SSL_write(conn, buffer, BUFFERSIZE -1);
 
 	if (ret <= 0) {
 		printlog( 1, "Error sending" );
-		return 0;
+		ret = 0;
+		goto exit;
 	}
 
 	ret = SSL_read(conn, buffer, BUFFERSIZE - 1) > 0;
 
 	SSL_shutdown(conn);
 
+exit:
+	SSL_CTX_free(ssl_ctx);
+	SSL_free(conn);
 	return ret;
 }
 #endif
